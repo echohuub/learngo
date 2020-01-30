@@ -11,19 +11,15 @@ var (
 	cityUrlRe = regexp.MustCompile(`<a href="(http://www.zhenai.com/zhenghun/[^"]+)"`)
 )
 
-func ParseCity(contents []byte) engine.ParseResult {
+func ParseCity(contents []byte, _ string) engine.ParseResult {
 	matches := profileRe.FindAllSubmatch(contents, -1)
 
 	result := engine.ParseResult{}
 	for _, m := range matches {
-		name := string(m[2])
-		result.Items = append(result.Items, "User "+name)
 		result.Requests = append(result.Requests,
 			engine.Request{
-				Url: string(m[1]),
-				ParseFunc: func(c []byte) engine.ParseResult {
-					return ParseProfile(c, name)
-				},
+				Url:       string(m[1]),
+				ParseFunc: ProfileParser(string(m[2])),
 			})
 	}
 
